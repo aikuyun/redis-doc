@@ -1,4 +1,6 @@
-# redis 学习记录 | 文档
+# Redis 学习记录 | 文档
+
+## 简介
 
 Redis 文档记录，参考官网文档
 
@@ -6,4 +8,16 @@ Redis 是一个开源（BSD许可）的，内存中的数据结构存储系统�
 
 同时拥有丰富的支持主流语言的 客户端，C、C++、Python、Erlang、R、C#、Java、PHP、Objective- C、Perl、Ruby、Scala、Go、JavaScript 等。
 
+## Redis 的特点
 
+1.数据结构丰富
+
+Redis 虽然也是键值对数据库，但是和 Memcached 不同的是， Redis 支持多种类型的数据结构，不仅可以是字符串，同时还提供散 列(hashes)，列表(lists)，集合(sets)，有序集合(sorted sets) 等数据结构。
+
+2.数据持久化
+
+Redis 支持数据的持久化，可以将内存中的数据保存在磁盘中，重启的时候可以再次加载使用。
+
+3.数据备份
+
+Redis 支持数据的备份，也就是 master-slave 模式的数据备份。
