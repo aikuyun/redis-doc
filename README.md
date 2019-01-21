@@ -39,7 +39,40 @@ $ tar xzf redis-5.0.3.tar.gz
 $ cd redis-5.0.3
 $ make
 ```
-此时编译成功，可以使用了。此时会在 src 目录下生成可执行程序，如果想安装到本机，可以继续执行 `make install` 命令, 默认安装在 /usr/local/bin 目录下。
+此时编译成功，可以使用了。此时会在 src 目录下生成可执行程序，如果想安装到本机，可以继续执行 `make install` 命令, 默认安装在 `/usr/local/bin` 目录下。
+
+拿到源码包里面的 redis.conf 文件，备份一份出来，进行修改，首先把运行模式改成`后台运行`模式。 找到如下配置，改成 yes
+
+```
+# By default Redis does not run as a daemon. Use 'yes' if you need it.
+# Note that Redis will write a pid file in /var/run/redis.pid when daemonized.
+# daemonize no 默认的
+daemonize yes 
+```
+
+启动 redis 服务，启动的时候指定配置文件的位置。eg:
+
+```
+redis-server ~/conf/redis.conf
+
+```
+启动之后(后台运行)，打印出如下日志信息:
+
+```
+5722:C 21 Jan 2019 14:33:26.832 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+5722:C 21 Jan 2019 14:33:26.832 # Redis version=5.0.3, bits=64, commit=00000000, modified=0, pid=5722, just started
+5722:C 21 Jan 2019 14:33:26.832 # Configuration loaded
+```
+
+可以使用命令 ps 查看 redis 的进程:
+
+```
+ps -ef | grep redis
+```
+
+
+
+
 
 
 
