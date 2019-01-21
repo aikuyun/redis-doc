@@ -39,7 +39,9 @@ $ tar xzf redis-5.0.3.tar.gz
 $ cd redis-5.0.3
 $ make
 ```
-此时编译成功，可以使用了。
+此时编译成功，可以使用了。此时会在 src 目录下生成可执行程序，如果想安装到本机，可以继续执行 `make install` 命令, 默认安装在 /usr/local/bin 目录下。
+
+
 
 
 
