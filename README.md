@@ -75,6 +75,105 @@ redis-server ~/conf/redis.conf
 ps -ef | grep redis
 ```
 
+## Redis 使用
+
+Redis 的 key 是二进制安全的，这意味着可以使用任何二进制为key。
+
+切换数据库：
+
+## Redis 持久化
+
+前面也提到了 Redis 支持不同级别的持久化。
+
+如下:
+
+- RDB
+- AOF
+- RDB && AOF
+- 关闭持久化
+
+下面依次介绍,
+
+1.
+RDB （Redis DataBase）在指定时间段内把内存中的数据集快照写入磁盘，恢复时直接读取快照文件加载到内存。大致的过程是这样的，Redis 会 fork 一个子线程来做持久化的任务，它会先将数据写到一个临时文件中，等待持久化结束之后，再用这个临时文件替换掉上一次持久化的文件。上述过程中，主进程是不进行任何 IO 操作的，所以持久化性能极高。
+
+fork 的作用是复制一个与主进程一样的子进程，这个新的子进程的数据（变量、环境变量、程序计数器等）全部一致。保存之后的家文件叫做 dump.rdb，这是一个很紧凑的文件，它保存了某个时间点得数据集,非常适用于数据集的备份,比如你可以在每个小时报保存一下过去24小时内的数据,同时每天保存过去30天的数据,这样即使出了问题你也可以根据需求恢复到不同版本的数据集。
+
+但是 RDB 也有优缺点：可能会丢失最后一次持久化的数据。如果对数据的完整性很敏感的话，建议使用 AOF
+
+redis 在该模式下持久化的原则是：1分钟内修改1万次，5分钟内修改10次，15分钟内改动一次。
+
+关闭的话，使用命令 `conf set save " "` 或者修改 redis.conf 文件。
+
+2.
+
+AOF(Append Only File) 以日志的形式记录每次写操作，日志文件只允许追加，不允许修改。Redis 启动之初，会读取该文件，重构数据。换句话说就是 Redis 在启动之后，会把文件中的写记录从头开始执行一遍恢复数据。
+
+开启 AOF 是修改 redis.conf 文件：
+
+```
+############################## APPEND ONLY MODE ###############################
+
+# By default Redis asynchronously dumps the dataset on disk. This mode is
+# good enough in many applications, but an issue with the Redis process or
+# a power outage may result into a few minutes of writes lost (depending on
+# the configured save points).
+#
+# The Append Only File is an alternative persistence mode that provides
+# much better durability. For instance using the default data fsync policy
+# (see later in the config file) Redis can lose just one second of writes in a
+# dramatic event like a server power outage, or a single write if something
+# wrong with the Redis process itself happens, but the operating system is
+# still running correctly.
+#
+# AOF and RDB persistence can be enabled at the same time without problems.
+# If the AOF is enabled on startup Redis will load the AOF, that is the file
+# with the better durability guarantees.
+#
+# Please check http://redis.io/topics/persistence for more information.
+
+# 默认是 no 改成 yes 开启 AOF
+
+appendonly yes
+
+```
+
+关于 AOF 的策略，官方是这样说的：
+
+
+```
+# If unsure, use "everysec".
+
+# appendfsync always 数据完整性较好，但是性能差。
+appendfsync everysec 默认推荐这个，异步操作。
+# appendfsync no 从不
+```
+
+AOF 是追加的形式，所以文件会越来越大，为了避免文件太大，引入了重写机制。aof 文件大小超过一定的阈值，redis 会自动的压缩文件，可以使用命令 `bgrewroteaof` 。
+
+重写的原理是:aof 文件越来越大的时候，会 fork 一个新的线程将文件重写，遍历新进程里面的数据，每条记录有一天 set 语句，写到新的文件，最后覆盖之前的文件。
+
+如何触发呢？ redis 会记录上次重写的 aof 文件的大小，当 现在 aof 的大小为上次的一杯且大小超过 64 M。关于这个，配置文件里面有说明的，可以修改：
+
+```
+# This is how it works: Redis remembers the size of the AOF file after the
+# latest rewrite (if no rewrite has happened since the restart, the size of
+# the AOF at startup is used).
+#
+# This base size is compared to the current size. If the current size is
+# bigger than the specified percentage, the rewrite is triggered. Also
+# you need to specify a minimal size for the AOF file to be rewritten, this
+# is useful to avoid rewriting the AOF file even if the percentage increase
+# is reached but it is still pretty small.
+#
+# Specify a percentage of zero in order to disable the automatic AOF
+# rewrite feature.
+
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+```
+
+
 
 
 
